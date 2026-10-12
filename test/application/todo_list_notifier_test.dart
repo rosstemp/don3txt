@@ -720,8 +720,8 @@ void main() {
         final result = notifier.filteredTasks;
 
         expect(result.length, 2);
-        expect(result[0].description, 'Tomorrow');
-        expect(result[1].description, 'In 3 days');
+        expect(result[0].description, 'In 3 days');
+        expect(result[1].description, 'Tomorrow');
       });
 
       test('upcomingTaskCount returns correct count', () async {
@@ -1247,7 +1247,7 @@ void main() {
         expect(result[1].description, 'No priority');
       });
 
-      test('same priority sorts by due date (earlier first)', () async {
+      test('same priority sorts by due date (later first under default due:desc)', () async {
         final repository = InMemoryTodoRepository(
           TodoFile([
             TodoItem(
@@ -1264,6 +1264,35 @@ void main() {
         );
         notifier = TodoListNotifier(repository, InMemoryTodoRepository());
         await notifier.loadTasks();
+        notifier.activeFilter = TaskFilter.inbox;
+
+        final result = notifier.filteredTasks;
+
+        expect(result[0].description, 'Later');
+        expect(result[1].description, 'Sooner');
+      });
+
+      test('same priority sorts by due date (earlier first when configured ascending)', () async {
+        final repository = InMemoryTodoRepository(
+          TodoFile([
+            TodoItem(
+              description: 'Later',
+              priority: 'A',
+              metadata: {'due': '2026-03-20'},
+            ),
+            TodoItem(
+              description: 'Sooner',
+              priority: 'A',
+              metadata: {'due': '2026-03-15'},
+            ),
+          ]),
+        );
+        notifier = TodoListNotifier(repository, InMemoryTodoRepository());
+        await notifier.loadTasks();
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.ascending),
+        ]);
         notifier.activeFilter = TaskFilter.inbox;
 
         final result = notifier.filteredTasks;
@@ -1340,7 +1369,7 @@ void main() {
         expect(result[1].description, 'No creation');
       });
 
-      test('full ordering: priority > due > creation', () async {
+      test('full default ordering: due (desc) > creation (asc) > priority (asc)', () async {
         final repository = InMemoryTodoRepository(
           TodoFile([
             TodoItem(description: 'No priority no due'),
@@ -1368,6 +1397,55 @@ void main() {
         );
         notifier = TodoListNotifier(repository, InMemoryTodoRepository());
         await notifier.loadTasks();
+        notifier.activeFilter = TaskFilter.inbox;
+
+        final descriptions = notifier.filteredTasks
+            .map((t) => t.description)
+            .toList();
+
+        expect(descriptions, [
+          'B with late due',
+          'A with late due',
+          'A with early due',
+          'No priority with due',
+          'A no due',
+          'No priority no due',
+        ]);
+      });
+
+      test('full ordering with configured chain: priority > due (asc) > creation', () async {
+        final repository = InMemoryTodoRepository(
+          TodoFile([
+            TodoItem(description: 'No priority no due'),
+            TodoItem(
+              description: 'B with late due',
+              priority: 'B',
+              metadata: {'due': '2026-03-25'},
+            ),
+            TodoItem(
+              description: 'A with early due',
+              priority: 'A',
+              metadata: {'due': '2026-03-15'},
+            ),
+            TodoItem(
+              description: 'A with late due',
+              priority: 'A',
+              metadata: {'due': '2026-03-20'},
+            ),
+            TodoItem(description: 'A no due', priority: 'A'),
+            TodoItem(
+              description: 'No priority with due',
+              metadata: {'due': '2026-03-10'},
+            ),
+          ]),
+        );
+        notifier = TodoListNotifier(repository, InMemoryTodoRepository());
+        await notifier.loadTasks();
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.ascending),
+          TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
+        ]);
         notifier.activeFilter = TaskFilter.inbox;
 
         final descriptions = notifier.filteredTasks

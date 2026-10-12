@@ -200,7 +200,7 @@ void main() {
 
     testWidgets('shows language options', (tester) async {
       await tester.pumpWidget(buildTestApp(notifier));
-      await tester.scrollUntilVisible(find.text('Português'), 200,
+      await tester.scrollUntilVisible(find.text('Polski'), 200,
           scrollable: find.byType(Scrollable).first);
 
       expect(find.text('Language'), findsOneWidget);
@@ -301,6 +301,8 @@ void main() {
       await tester.pumpWidget(buildTestApp(notifier));
       await tester.scrollUntilVisible(find.text('Reset to defaults'), 200,
           scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(find.text('Reset to defaults'));
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Reset to defaults'));
       await tester.pumpAndSettle();

@@ -86,6 +86,14 @@ class TaskSortOrder {
   String toString() => serialize();
 }
 
+const defaultSortOrders = <TaskSortOrder>[
+  TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+  TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
+  TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
+];
+
+const defaultSortCriteria = defaultSortOrders;
+
 typedef TaskComparator = int Function(TodoItem a, TodoItem b);
 
 TaskComparator compareTasksBy(List<TaskSortOrder> chain) {

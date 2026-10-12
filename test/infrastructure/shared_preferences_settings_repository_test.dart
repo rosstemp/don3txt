@@ -4,6 +4,7 @@ import 'package:don3txt/domain/app_language.dart';
 import 'package:don3txt/domain/app_theme_mode.dart';
 import 'package:don3txt/domain/priority_colors.dart';
 import 'package:don3txt/domain/task_sort_criterion.dart';
+import 'package:don3txt/infrastructure/settings_repository.dart';
 import 'package:don3txt/infrastructure/shared_preferences_settings_repository.dart';
 
 void main() {

@@ -17,11 +17,3 @@ abstract class SettingsRepository {
   Future<List<TaskSortOrder>> loadSortCriteria();
   Future<void> saveSortCriteria(List<TaskSortOrder> value);
 }
-
-const defaultSortOrders = <TaskSortOrder>[
-  TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
-  TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
-  TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
-];
-
-const defaultSortCriteria = defaultSortOrders;

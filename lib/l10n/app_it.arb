@@ -29,6 +29,7 @@
   "languageFrench": "Français",
   "languageItalian": "Italiano",
   "languagePortuguese": "Português",
+  "languagePolish": "Polski",
   "searchHint": "Cerca...",
   "noPendingTasks": "Nessuna attività in sospeso",
   "taskCompletedSnack": "Attività completata",
@@ -78,5 +79,7 @@
   "sortCriterionThreshold": "Data soglia",
   "sortCriterionCreation": "Data di creazione",
   "addSortCriterion": "Aggiungi criterio",
-  "removeSortCriterion": "Rimuovi"
+  "removeSortCriterion": "Rimuovi",
+  "sortOrderAscending": "Crescente",
+  "sortOrderDescending": "Decrescente"
 }

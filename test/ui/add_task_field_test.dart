@@ -62,13 +62,13 @@ class InMemorySettingsRepository implements SettingsRepository {
     _priorityColors = value;
   }
 
-  List<TaskSortCriterion> _sortCriteria = defaultSortCriteria;
+  List<TaskSortOrder> _sortCriteria = defaultSortOrders;
 
   @override
-  Future<List<TaskSortCriterion>> loadSortCriteria() async => _sortCriteria;
+  Future<List<TaskSortOrder>> loadSortCriteria() async => _sortCriteria;
 
   @override
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value) async {
+  Future<void> saveSortCriteria(List<TaskSortOrder> value) async {
     _sortCriteria = value;
   }
 }

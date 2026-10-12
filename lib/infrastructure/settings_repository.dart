@@ -14,12 +14,14 @@ abstract class SettingsRepository {
   Future<void> saveLanguage(AppLanguage value);
   Future<PriorityColors> loadPriorityColors();
   Future<void> savePriorityColors(PriorityColors value);
-  Future<List<TaskSortCriterion>> loadSortCriteria();
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value);
+  Future<List<TaskSortOrder>> loadSortCriteria();
+  Future<void> saveSortCriteria(List<TaskSortOrder> value);
 }
 
-const defaultSortCriteria = <TaskSortCriterion>[
-  TaskSortCriterion.priority,
-  TaskSortCriterion.due,
-  TaskSortCriterion.creation,
+const defaultSortOrders = <TaskSortOrder>[
+  TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+  TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
+  TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
 ];
+
+const defaultSortCriteria = defaultSortOrders;

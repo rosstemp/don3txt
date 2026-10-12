@@ -12,7 +12,7 @@ class SettingsNotifier extends ChangeNotifier {
   int _upcomingDays = 7;
   AppLanguage _language = AppLanguage.system;
   PriorityColors _priorityColors = PriorityColors.defaults();
-  List<TaskSortCriterion> _sortCriteria = defaultSortCriteria;
+  List<TaskSortOrder> _sortCriteria = defaultSortOrders;
 
   SettingsNotifier(this._repository);
 
@@ -21,7 +21,7 @@ class SettingsNotifier extends ChangeNotifier {
   int get upcomingDays => _upcomingDays;
   AppLanguage get language => _language;
   PriorityColors get priorityColors => _priorityColors;
-  List<TaskSortCriterion> get sortCriteria => List.unmodifiable(_sortCriteria);
+  List<TaskSortOrder> get sortCriteria => List.unmodifiable(_sortCriteria);
 
   Future<void> load() async {
     _todoFilePath = await _repository.loadTodoFilePath();
@@ -76,7 +76,7 @@ class SettingsNotifier extends ChangeNotifier {
     await _repository.savePriorityColors(_priorityColors);
   }
 
-  Future<void> setSortCriteria(List<TaskSortCriterion> value) async {
+  Future<void> setSortCriteria(List<TaskSortOrder> value) async {
     _sortCriteria = List.unmodifiable(value);
     notifyListeners();
 

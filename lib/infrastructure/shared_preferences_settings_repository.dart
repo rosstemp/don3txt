@@ -98,28 +98,29 @@ class SharedPreferencesSettingsRepository implements SettingsRepository {
   }
 
   @override
-  Future<List<TaskSortCriterion>> loadSortCriteria() async {
+  Future<List<TaskSortOrder>> loadSortCriteria() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_sortCriteriaKey);
 
-    if (raw == null || raw.isEmpty) return defaultSortCriteria;
+    if (raw == null || raw.isEmpty) return defaultSortOrders;
 
     final parsed = raw
         .split(',')
-        .map((name) => TaskSortCriterion.parse(name.trim()))
-        .whereType<TaskSortCriterion>()
+        .map((part) => TaskSortOrder.parse(part.trim()))
+        .whereType<TaskSortOrder>()
         .toList();
 
-    if (parsed.isEmpty) return defaultSortCriteria;
+    if (parsed.isEmpty) return defaultSortOrders;
 
     return parsed;
   }
 
   @override
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value) async {
+  Future<void> saveSortCriteria(List<TaskSortOrder> value) async {
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString(_sortCriteriaKey, value.map((c) => c.name).join(','));
+    await prefs.setString(
+        _sortCriteriaKey, value.map((c) => c.serialize()).join(','));
   }
 
   PriorityColors _parsePriorityColors(String raw) {

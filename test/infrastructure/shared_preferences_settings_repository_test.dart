@@ -117,18 +117,14 @@ void main() {
         () async {
       final result = await repository.loadSortCriteria();
 
-      expect(result, [
-        TaskSortCriterion.priority,
-        TaskSortCriterion.due,
-        TaskSortCriterion.creation,
-      ]);
+      expect(result, defaultSortOrders);
     });
 
     test('saveSortCriteria round-trips the chain', () async {
       final chain = [
-        TaskSortCriterion.due,
-        TaskSortCriterion.priority,
-        TaskSortCriterion.threshold,
+        const TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        const TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
+        const TaskSortOrder(TaskSortCriterion.threshold, SortDirection.descending),
       ];
 
       await repository.saveSortCriteria(chain);
@@ -144,21 +140,35 @@ void main() {
 
       final result = await repository.loadSortCriteria();
 
-      expect(result, [
-        TaskSortCriterion.priority,
-        TaskSortCriterion.due,
-        TaskSortCriterion.creation,
-      ]);
+      expect(result, defaultSortOrders);
     });
 
-    test('loadSortCriteria skips unknown entries while keeping known ones',
+    test(
+        'loadSortCriteria parses legacy format without direction as ascending and skips unknowns',
         () async {
       SharedPreferences.setMockInitialValues(
-          {'sort_criteria': 'due,nope,priority'});
+          {'sort_criteria': 'due,nope,priority:desc'});
 
       final result = await repository.loadSortCriteria();
 
-      expect(result, [TaskSortCriterion.due, TaskSortCriterion.priority]);
+      expect(result, [
+        const TaskSortOrder(TaskSortCriterion.due, SortDirection.ascending),
+        const TaskSortOrder(TaskSortCriterion.priority, SortDirection.descending),
+      ]);
+    });
+
+    test('existing user legacy settings are preserved and not overwritten',
+        () async {
+      SharedPreferences.setMockInitialValues(
+          {'sort_criteria': 'priority,due,creation'});
+
+      final result = await repository.loadSortCriteria();
+
+      expect(result, [
+        const TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
+        const TaskSortOrder(TaskSortCriterion.due, SortDirection.ascending),
+        const TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
+      ]);
     });
 
     test('saveSortCriteria with empty list falls back to default on load',
@@ -167,11 +177,7 @@ void main() {
 
       final result = await repository.loadSortCriteria();
 
-      expect(result, [
-        TaskSortCriterion.priority,
-        TaskSortCriterion.due,
-        TaskSortCriterion.creation,
-      ]);
+      expect(result, defaultSortOrders);
     });
   });
 }

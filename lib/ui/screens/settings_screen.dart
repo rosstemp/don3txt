@@ -96,6 +96,12 @@ class SettingsScreen extends StatelessWidget {
             groupValue: settings.language,
             onChanged: (value) => settings.setLanguage(value!),
           ),
+          RadioListTile<AppLanguage>(
+            title: Text(loc.languagePolish),
+            value: AppLanguage.polish,
+            groupValue: settings.language,
+            onChanged: (value) => settings.setLanguage(value!),
+          ),
           const Divider(),
           _SectionHeader(title: loc.sectionUpcomingDays),
           for (final days in [3, 7, 14, 30])
@@ -297,7 +303,7 @@ class _TaskOrderingSection extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final criteria = settings.sortCriteria;
     final available = TaskSortCriterion.values
-        .where((c) => !criteria.contains(c))
+        .where((c) => !criteria.any((order) => order.criterion == c))
         .toList();
 
     return Column(
@@ -310,23 +316,46 @@ class _TaskOrderingSection extends StatelessWidget {
           onReorder: (oldIndex, newIndex) =>
               _onReorder(criteria, oldIndex, newIndex),
           itemBuilder: (context, index) {
-            final criterion = criteria[index];
+            final order = criteria[index];
 
             return ListTile(
-              key: ValueKey('sort_criterion_${criterion.name}'),
+              key: ValueKey('sort_criterion_${order.criterion.name}'),
               leading: ReorderableDragStartListener(
                 index: index,
                 child: const Icon(Icons.drag_handle),
               ),
-              title: Text(_labelFor(criterion, loc)),
-              trailing: criteria.length > 1
-                  ? IconButton(
-                      key: ValueKey('remove_sort_criterion_${criterion.name}'),
+              title: Text(_labelFor(order.criterion, loc)),
+              subtitle: Text(
+                order.direction == SortDirection.ascending
+                    ? loc.sortOrderAscending
+                    : loc.sortOrderDescending,
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    key: ValueKey(
+                        'toggle_sort_direction_${order.criterion.name}'),
+                    icon: Icon(
+                      order.direction == SortDirection.ascending
+                          ? Icons.arrow_upward
+                          : Icons.arrow_downward,
+                    ),
+                    tooltip: order.direction == SortDirection.ascending
+                        ? loc.sortOrderAscending
+                        : loc.sortOrderDescending,
+                    onPressed: () => _toggleDirection(order),
+                  ),
+                  if (criteria.length > 1)
+                    IconButton(
+                      key: ValueKey(
+                          'remove_sort_criterion_${order.criterion.name}'),
                       icon: const Icon(Icons.close),
                       tooltip: loc.removeSortCriterion,
-                      onPressed: () => _remove(criterion),
-                    )
-                  : null,
+                      onPressed: () => _remove(order),
+                    ),
+                ],
+              ),
             );
           },
         ),
@@ -353,9 +382,20 @@ class _TaskOrderingSection extends StatelessWidget {
     }
   }
 
+  void _toggleDirection(TaskSortOrder order) {
+    final updated = settings.sortCriteria.map((item) {
+      if (item.criterion == order.criterion) {
+        return item.toggleDirection();
+      }
+      return item;
+    }).toList();
+
+    settings.setSortCriteria(updated);
+  }
+
   void _onReorder(
-      List<TaskSortCriterion> current, int oldIndex, int newIndex) {
-    final updated = List<TaskSortCriterion>.from(current);
+      List<TaskSortOrder> current, int oldIndex, int newIndex) {
+    final updated = List<TaskSortOrder>.from(current);
     final adjustedNew = newIndex > oldIndex ? newIndex - 1 : newIndex;
     final moved = updated.removeAt(oldIndex);
     updated.insert(adjustedNew, moved);
@@ -363,9 +403,9 @@ class _TaskOrderingSection extends StatelessWidget {
     settings.setSortCriteria(updated);
   }
 
-  void _remove(TaskSortCriterion criterion) {
+  void _remove(TaskSortOrder order) {
     final updated = settings.sortCriteria
-        .where((c) => c != criterion)
+        .where((c) => c.criterion != order.criterion)
         .toList(growable: false);
 
     settings.setSortCriteria(updated);
@@ -395,7 +435,10 @@ class _TaskOrderingSection extends StatelessWidget {
 
     if (picked == null) return;
 
-    final updated = [...settings.sortCriteria, picked];
+    final updated = [
+      ...settings.sortCriteria,
+      TaskSortOrder(picked, SortDirection.ascending),
+    ];
     await settings.setSortCriteria(updated);
   }
 }

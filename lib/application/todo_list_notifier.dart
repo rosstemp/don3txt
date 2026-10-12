@@ -20,7 +20,7 @@ class TodoListNotifier extends ChangeNotifier {
   String? _selectedProject;
   String? _selectedContext;
   int _upcomingDays = 7;
-  List<TaskSortCriterion> _sortCriteria = defaultSortCriteria;
+  List<TaskSortOrder> _sortCriteria = defaultSortOrders;
 
   String _searchQuery = '';
 
@@ -103,12 +103,12 @@ class TodoListNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<TaskSortCriterion> get sortCriteria => List.unmodifiable(_sortCriteria);
+  List<TaskSortOrder> get sortCriteria => List.unmodifiable(_sortCriteria);
 
-  void setSortCriteria(List<TaskSortCriterion> value) {
+  void setSortCriteria(List<TaskSortOrder> value) {
     if (listEquals(_sortCriteria, value)) return;
 
-    _sortCriteria = List<TaskSortCriterion>.unmodifiable(value);
+    _sortCriteria = List<TaskSortOrder>.unmodifiable(value);
     notifyListeners();
   }
 

@@ -6,7 +6,8 @@ enum AppLanguage {
   english,
   french,
   italian,
-  portuguese;
+  portuguese,
+  polish;
 
   Locale? get locale {
     switch (this) {
@@ -22,6 +23,8 @@ enum AppLanguage {
         return const Locale('it');
       case AppLanguage.portuguese:
         return const Locale('pt');
+      case AppLanguage.polish:
+        return const Locale('pl');
     }
   }
 

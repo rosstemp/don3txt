@@ -29,12 +29,17 @@ void main() {
       expect(AppLanguage.portuguese.locale, const Locale('pt'));
     });
 
+    test('polish maps to Locale("pl")', () {
+      expect(AppLanguage.polish.locale, const Locale('pl'));
+    });
+
     test('fromName returns matching language', () {
       expect(AppLanguage.fromName('spanish'), AppLanguage.spanish);
       expect(AppLanguage.fromName('english'), AppLanguage.english);
       expect(AppLanguage.fromName('french'), AppLanguage.french);
       expect(AppLanguage.fromName('italian'), AppLanguage.italian);
       expect(AppLanguage.fromName('portuguese'), AppLanguage.portuguese);
+      expect(AppLanguage.fromName('polish'), AppLanguage.polish);
       expect(AppLanguage.fromName('system'), AppLanguage.system);
     });
 

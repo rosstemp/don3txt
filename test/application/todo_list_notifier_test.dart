@@ -1486,9 +1486,9 @@ void main() {
         await notifier.loadTasks();
         notifier.activeFilter = TaskFilter.inbox;
 
-        notifier.setSortCriteria([
-          TaskSortCriterion.due,
-          TaskSortCriterion.priority,
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.ascending),
+          TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
         ]);
 
         final result = notifier.filteredTasks;
@@ -1497,18 +1497,22 @@ void main() {
         expect(result[1].description, 'Late, high priority');
       });
 
-      test('defaults to priority -> due -> creation', () async {
+      test('defaults to due (desc) -> creation (asc) -> priority (asc)', () async {
         repository = InMemoryTodoRepository(
           TodoFile([
             TodoItem(
-              description: 'Lower priority, earlier due',
-              priority: 'C',
+              description: 'Earlier due, higher priority',
+              priority: 'A',
               metadata: {'due': '2026-01-15'},
             ),
             TodoItem(
-              description: 'Higher priority, later due',
-              priority: 'A',
+              description: 'Later due, lower priority',
+              priority: 'C',
               metadata: {'due': '2026-12-31'},
+            ),
+            TodoItem(
+              description: 'No due, high priority',
+              priority: 'A',
             ),
           ]),
         );
@@ -1518,8 +1522,35 @@ void main() {
 
         final result = notifier.filteredTasks;
 
-        expect(result[0].priority, 'A');
-        expect(result[1].priority, 'C');
+        expect(result[0].description, 'Later due, lower priority');
+        expect(result[1].description, 'Earlier due, higher priority');
+        expect(result[2].description, 'No due, high priority');
+      });
+
+      test('tasks without due date remain at end when sorting due descending',
+          () async {
+        repository = InMemoryTodoRepository(
+          TodoFile([
+            TodoItem(
+              description: 'Task without due',
+            ),
+            TodoItem(
+              description: 'Task with due',
+              metadata: {'due': '2026-05-01'},
+            ),
+          ]),
+        );
+        notifier = TodoListNotifier(repository, InMemoryTodoRepository());
+        await notifier.loadTasks();
+        notifier.activeFilter = TaskFilter.inbox;
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        ]);
+
+        final result = notifier.filteredTasks;
+
+        expect(result[0].description, 'Task with due');
+        expect(result[1].description, 'Task without due');
       });
 
       test('setSortCriteria notifies listeners', () async {
@@ -1527,7 +1558,9 @@ void main() {
         var notified = false;
         notifier.addListener(() => notified = true);
 
-        notifier.setSortCriteria([TaskSortCriterion.due]);
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        ]);
 
         expect(notified, true);
       });
@@ -1553,7 +1586,9 @@ void main() {
         await notifier.loadTasks();
         notifier.activeFilter = TaskFilter.completed;
 
-        notifier.setSortCriteria([TaskSortCriterion.due]);
+        notifier.setSortCriteria(const [
+          TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        ]);
 
         final result = notifier.filteredTasks;
 

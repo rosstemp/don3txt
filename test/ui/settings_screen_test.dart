@@ -62,13 +62,13 @@ class InMemorySettingsRepository implements SettingsRepository {
     _priorityColors = value;
   }
 
-  List<TaskSortCriterion> _sortCriteria = defaultSortCriteria;
+  List<TaskSortOrder> _sortCriteria = defaultSortOrders;
 
   @override
-  Future<List<TaskSortCriterion>> loadSortCriteria() async => _sortCriteria;
+  Future<List<TaskSortOrder>> loadSortCriteria() async => _sortCriteria;
 
   @override
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value) async {
+  Future<void> saveSortCriteria(List<TaskSortOrder> value) async {
     _sortCriteria = value;
   }
 }
@@ -210,6 +210,7 @@ void main() {
       expect(find.text('Français'), findsOneWidget);
       expect(find.text('Italiano'), findsOneWidget);
       expect(find.text('Português'), findsOneWidget);
+      expect(find.text('Polski'), findsOneWidget);
     });
 
     testWidgets('System language is selected by default', (tester) async {
@@ -233,6 +234,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(notifier.language, AppLanguage.french);
+    });
+
+    testWidgets('tapping Polish updates language selection', (tester) async {
+      await tester.pumpWidget(buildTestApp(notifier));
+      await tester.scrollUntilVisible(find.text('Polski'), 200,
+          scrollable: find.byType(Scrollable).first);
+
+      await tester.tap(find.text('Polski'));
+      await tester.pumpAndSettle();
+
+      expect(notifier.language, AppLanguage.polish);
     });
 
     testWidgets('shows priority colors section with a row per A-F letter',
@@ -368,7 +380,7 @@ void main() {
         await tester.tap(find.text('Threshold date'));
         await tester.pumpAndSettle();
 
-        expect(notifier.sortCriteria.last,
+        expect(notifier.sortCriteria.last.criterion,
             equals(TaskSortCriterion.threshold));
       });
 
@@ -385,12 +397,33 @@ void main() {
         await tester.tap(removeButtons);
         await tester.pumpAndSettle();
 
-        expect(notifier.sortCriteria.contains(TaskSortCriterion.due), isFalse);
+        expect(notifier.sortCriteria.any((o) => o.criterion == TaskSortCriterion.due), isFalse);
+      });
+
+      testWidgets('toggle direction button flips between ascending and descending',
+          (tester) async {
+        await tester.pumpWidget(buildTestApp(notifier));
+        await tester.scrollUntilVisible(find.text('Task ordering'), 200,
+            scrollable: find.byType(Scrollable).first);
+
+        final toggleDue = find.byKey(
+            const ValueKey('toggle_sort_direction_due'));
+        expect(toggleDue, findsOneWidget);
+
+        // Due starts descending by default
+        expect(notifier.sortCriteria.first.direction, SortDirection.descending);
+
+        await tester.tap(toggleDue);
+        await tester.pumpAndSettle();
+
+        expect(notifier.sortCriteria.first.direction, SortDirection.ascending);
       });
 
       testWidgets('remove button is hidden when only one criterion remains',
           (tester) async {
-        await notifier.setSortCriteria([TaskSortCriterion.priority]);
+        await notifier.setSortCriteria([
+          const TaskSortOrder(TaskSortCriterion.priority),
+        ]);
 
         await tester.pumpWidget(buildTestApp(notifier));
         await tester.scrollUntilVisible(find.text('Task ordering'), 200,

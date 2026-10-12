@@ -12,7 +12,7 @@ class InMemorySettingsRepository implements SettingsRepository {
   int _upcomingDays = 7;
   AppLanguage _language = AppLanguage.system;
   PriorityColors _priorityColors = PriorityColors.defaults();
-  List<TaskSortCriterion> _sortCriteria = defaultSortCriteria;
+  List<TaskSortOrder> _sortCriteria = defaultSortOrders;
 
   InMemorySettingsRepository({
     String? todoFilePath,
@@ -20,7 +20,7 @@ class InMemorySettingsRepository implements SettingsRepository {
     int? upcomingDays,
     AppLanguage? language,
     PriorityColors? priorityColors,
-    List<TaskSortCriterion>? sortCriteria,
+    List<TaskSortOrder>? sortCriteria,
   }) {
     _todoFilePath = todoFilePath;
     if (themeMode != null) _themeMode = themeMode;
@@ -71,10 +71,10 @@ class InMemorySettingsRepository implements SettingsRepository {
   }
 
   @override
-  Future<List<TaskSortCriterion>> loadSortCriteria() async => _sortCriteria;
+  Future<List<TaskSortOrder>> loadSortCriteria() async => _sortCriteria;
 
   @override
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value) async {
+  Future<void> saveSortCriteria(List<TaskSortOrder> value) async {
     _sortCriteria = value;
   }
 }
@@ -266,28 +266,28 @@ void main() {
     });
 
     test('sortCriteria defaults to the canonical chain', () {
-      expect(notifier.sortCriteria, defaultSortCriteria);
+      expect(notifier.sortCriteria, defaultSortOrders);
     });
 
     test('load reads sortCriteria from repository', () async {
-      repository = InMemorySettingsRepository(sortCriteria: [
-        TaskSortCriterion.due,
-        TaskSortCriterion.priority,
+      repository = InMemorySettingsRepository(sortCriteria: const [
+        TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
       ]);
       notifier = SettingsNotifier(repository);
 
       await notifier.load();
 
-      expect(notifier.sortCriteria, [
-        TaskSortCriterion.due,
-        TaskSortCriterion.priority,
+      expect(notifier.sortCriteria, const [
+        TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+        TaskSortOrder(TaskSortCriterion.priority, SortDirection.ascending),
       ]);
     });
 
     test('setSortCriteria updates and persists', () async {
-      final newChain = [
-        TaskSortCriterion.threshold,
-        TaskSortCriterion.creation,
+      const newChain = [
+        TaskSortOrder(TaskSortCriterion.threshold, SortDirection.descending),
+        TaskSortOrder(TaskSortCriterion.creation, SortDirection.ascending),
       ];
 
       await notifier.setSortCriteria(newChain);
@@ -300,7 +300,9 @@ void main() {
       var notified = false;
       notifier.addListener(() => notified = true);
 
-      await notifier.setSortCriteria([TaskSortCriterion.due]);
+      await notifier.setSortCriteria(const [
+        TaskSortOrder(TaskSortCriterion.due, SortDirection.descending),
+      ]);
 
       expect(notified, true);
     });

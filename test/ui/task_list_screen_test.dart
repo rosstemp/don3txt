@@ -54,10 +54,10 @@ class InMemorySettingsRepository implements SettingsRepository {
   Future<void> savePriorityColors(PriorityColors value) async {}
 
   @override
-  Future<List<TaskSortCriterion>> loadSortCriteria() async => defaultSortCriteria;
+  Future<List<TaskSortOrder>> loadSortCriteria() async => defaultSortOrders;
 
   @override
-  Future<void> saveSortCriteria(List<TaskSortCriterion> value) async {}
+  Future<void> saveSortCriteria(List<TaskSortOrder> value) async {}
 }
 
 Widget buildTestApp(TodoListNotifier notifier) {

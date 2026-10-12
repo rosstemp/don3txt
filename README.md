@@ -51,6 +51,9 @@ A mobile application for managing tasks based on the [todo.txt](http://todotxt.o
 ### Settings
 
 - **Theme**: System (default), Light or Dark — Material Design 3
+- **Language**: System default, English, Spanish, French, Italian, Portuguese, and Polish
+- **Task ordering**: customizable multi-level sort chain (due date, creation date, priority, threshold date) with drag-and-drop reordering and independent **ascending / descending** direction toggles for each criterion. Tasks without dates/values always remain at the end regardless of direction. Default order: Due date (descending), Creation date (ascending), Priority (ascending)
+- **Priority colors**: customizable colors for priorities `(A)` through `(F)` with a red-to-green default palette
 - **First day of the week**: Monday or Sunday (affects the date picker)
 - **Upcoming days**: period for the Upcoming view (3, 7, 14 or 30 days)
 - **todo.txt file path**: configurable from settings
@@ -115,6 +118,10 @@ flutter build apk --release
 ```
 
 The APK is generated at `build/app/outputs/flutter-apk/app-release.apk`.
+
+### GitHub Actions (CI)
+
+A GitHub Actions workflow is provided at `.github/workflows/build-android-apk.yml` (`workflow_dispatch`) to automatically run tests and compile the debug APK. The generated artifact (`don3txt-debug-apk`) can be downloaded directly from the workflow run summary.
 
 ## Run on emulator or device
 
